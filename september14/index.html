@@ -155,37 +155,41 @@ function tick() {
 tick();
 setInterval(tick, 1000);
 
-// Letters (read-only, from Supabase with RLS)
+// Letters (Google Sheets API integration)
 async function loadLetters() {
   const box = document.getElementById("letters");
   try {
-    const res = await fetch(
-      `${CFG.SUPABASE_URL}/rest/v1/letters?select=id,body,created_at&order=created_at.desc`,
-      { headers: { apikey: CFG.SUPABASE_ANON_KEY } }
-    );
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(`Status ${res.status}: ${errorText}`);
-    }
+    const res = await fetch(`https://opensheet.elk.sh/${CFG.SHEET_ID}/Sheet1`);
+    if (!res.ok) throw new Error("Network error");
     const rows = await res.json();
-    if (!rows.length) { box.textContent = "এখনো কোনো চিঠি নেই।"; return; }
+    
+    if (!rows.length || !rows[0].body) { 
+      box.textContent = "এখনো কোনো চিঠি নেই।"; 
+      return; 
+    }
+    
     box.innerHTML = "";
     rows.forEach(r => {
+      if(!r.body) return; // ফাঁকা লাইন স্কিপ করবে
+      
       const div = document.createElement("div");
       div.className = "letter";
       div.style.borderTop = "1px solid rgba(167,139,250,.25)";
       div.style.paddingTop = "12px";
       div.style.marginTop = "12px";
+      
       const date = document.createElement("div");
       date.className = "letter-date";
-      date.textContent = new Date(r.created_at).toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" });
+      const d = r.created_at ? new Date(r.created_at).toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" }) : "কোনো তারিখ নেই";
+      date.textContent = d;
+      
       const body = document.createElement("div");
       body.textContent = r.body;
+      
       div.append(date, body);
       box.appendChild(div);
     });
   } catch (error) {
-    // এবার এরর টা স্ক্রিনেই দেখাবে
     box.innerHTML = `চিঠি লোড করা যায়নি।<br><small style="color:#fca5a5; font-size: 12px;">${error.message}</small>`;
   }
 }
