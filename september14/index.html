@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>September 14 — A Little Digital Memory</title>
+<style>
+  :root { --navy:#080D1C; --deep:#17233F; --purple:#A78BFA; --cyan:#67E8F9; --white:#FFFFFF; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--white);
+    font-family: system-ui, "Noto Sans Bengali", sans-serif;
+    background: radial-gradient(ellipse at top, var(--deep), var(--navy) 70%);
+  }
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .star { position: absolute; width: 2px; height: 2px; background: var(--white); border-radius: 50%; opacity: .6; animation: twinkle 3s infinite ease-in-out; }
+  @keyframes twinkle { 50% { opacity: .1; } }
+  .moon {
+    position: fixed; top: 8%; right: 8%; width: 90px; height: 90px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, #d9ccff 60%, var(--purple));
+    box-shadow: 0 0 60px var(--purple); z-index: 0; animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float { 50% { transform: translateY(-12px); } }
+  main { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; text-align: center; }
+  h1 { font-weight: 300; letter-spacing: 1px; margin: 0 0 4px; }
+  .sub { color: var(--cyan); margin-bottom: 32px; }
+  .card {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(167,139,250,.35);
+    border-radius: 18px; padding: 24px; margin: 24px 0; backdrop-filter: blur(10px);
+    box-shadow: 0 0 25px rgba(167,139,250,.15);
+  }
+  .counter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .counter div span { display: block; font-size: 2rem; font-weight: 600; color: var(--cyan); }
+  .counter div small { opacity: .7; }
+  button, .btn {
+    background: linear-gradient(135deg, var(--purple), #7c5cf0); color: #fff; border: 0;
+    padding: 12px 24px; border-radius: 999px; font-size: 1rem; cursor: pointer;
+    text-decoration: none; display: inline-block; transition: transform .2s;
+  }
+  button:hover, .btn:hover { transform: translateY(-2px); }
+  input {
+    width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--purple);
+    background: rgba(0,0,0,.3); color: #fff; font-size: 1rem; margin-bottom: 12px;
+  }
+  #gate {
+    position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center;
+    background: var(--navy); padding: 20px;
+  }
+  #gate .card { width: 100%; max-width: 360px; }
+  .error { color: #fca5a5; min-height: 1.2em; }
+  .letter { text-align: left; white-space: pre-wrap; line-height: 1.7; }
+  .letter-date { color: var(--cyan); font-size: .85rem; }
+  #hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="moon"></div>
+
+<!-- Password gate -->
+<div id="gate">
+  <div class="card">
+    <h2 style="font-weight:300">🔒 Password দাও</h2>
+    <input type="password" id="pw" placeholder="Password" autocomplete="off" />
+    <button id="unlockBtn" style="width:100%">প্রবেশ করো</button>
+    <p class="error" id="gateError"></p>
+  </div>
+</div>
+
+<main id="site" class="hidden-until-unlock" style="display:none">
+  <h1>September 14</h1>
+  <div class="sub">7:28 PM 🌙 &nbsp;·&nbsp; A Little Digital Memory</div>
+  <p style="opacity:.85">Some stories begin unexpectedly.<br>Some strangers become familiar.<br>And some moments deserve to be remembered.</p>
+
+  <div class="card">
+    <div style="margin-bottom:12px;opacity:.8">আমাদের শুরু থেকে</div>
+    <div class="counter">
+      <div><span id="d">0</span><small>দিন</small></div>
+      <div><span id="h">0</span><small>ঘণ্টা</small></div>
+      <div><span id="m">0</span><small>মিনিট</small></div>
+      <div><span id="s">0</span><small>সেকেন্ড</small></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-weight:300;margin-top:0">A Little Letter For You 💌</h3>
+    <div id="letters">লোড হচ্ছে...</div>
+  </div>
+
+  <div class="card">
+    <h3 style="font-weight:300;margin-top:0">Still Angry With Me? 😒</h3>
+    <p>Do you want to talk with me?</p>
+    <a class="btn" id="yesBtn" href="#" target="_blank" rel="noopener">YES 😲</a>
+    <button id="noBtn" style="background:#475569">NO 😡</button>
+    <p id="noMsg" style="min-height:1.5em"></p>
+  </div>
+</main>
+
+<script src="config.js"></script>
+<script>
+const CFG = window.APP_CONFIG;
+
+// Stars
+const starsEl = document.getElementById("stars");
+for (let i = 0; i < 120; i++) {
+  const s = document.createElement("div");
+  s.className = "star";
+  s.style.left = Math.random() * 100 + "%";
+  s.style.top = Math.random() * 100 + "%";
+  s.style.animationDelay = Math.random() * 3 + "s";
+  starsEl.appendChild(s);
+}
+
+// Password gate (server-side check)
+document.getElementById("unlockBtn").onclick = async () => {
+  const pw = document.getElementById("pw").value;
+  const err = document.getElementById("gateError");
+  err.textContent = "";
+  try {
+    const res = await fetch("/.netlify/functions/unlock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: pw }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById("gate").style.display = "none";
+      document.getElementById("site").style.display = "block";
+      loadLetters();
+    } else {
+      err.textContent = "ভুল password, আবার চেষ্টা করো।";
+    }
+  } catch {
+    err.textContent = "সংযোগে সমস্যা হয়েছে।";
+  }
+};
+document.getElementById("pw").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("unlockBtn").click();
+});
+
+// Live counter from real timestamp
+const START = new Date(CFG.START_ISO).getTime();
+function tick() {
+  const diff = Math.max(0, Date.now() - START);
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor(diff / 3600000) % 24;
+  const m = Math.floor(diff / 60000) % 60;
+  const s = Math.floor(diff / 1000) % 60;
+  document.getElementById("d").textContent = d;
+  document.getElementById("h").textContent = h;
+  document.getElementById("m").textContent = m;
+  document.getElementById("s").textContent = s;
+}
+tick();
+setInterval(tick, 1000);
+
+// Letters (read-only, from Supabase with RLS)
+async function loadLetters() {
+  const box = document.getElementById("letters");
+  try {
+    const res = await fetch(
+      `${CFG.SUPABASE_URL}/rest/v1/letters?select=id,body,created_at&order=created_at.desc`,
+      { headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: `Bearer ${CFG.SUPABASE_ANON_KEY}` } }
+    );
+    if (!res.ok) throw new Error();
+    const rows = await res.json();
+    if (!rows.length) { box.textContent = "এখনো কোনো চিঠি নেই।"; return; }
+    box.innerHTML = "";
+    rows.forEach(r => {
+      const div = document.createElement("div");
+      div.className = "letter";
+      div.style.borderTop = "1px solid rgba(167,139,250,.25)";
+      div.style.paddingTop = "12px";
+      div.style.marginTop = "12px";
+      const date = document.createElement("div");
+      date.className = "letter-date";
+      date.textContent = new Date(r.created_at).toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" });
+      const body = document.createElement("div");
+      body.textContent = r.body;
+      div.append(date, body);
+      box.appendChild(div);
+    });
+  } catch {
+    box.textContent = "চিঠি লোড করা যায়নি।";
+  }
+}
+
+// Telegram + angry mood
+document.getElementById("yesBtn").href = CFG.TELEGRAM_URL;
+const angryMsgs = ["Okay, Boss! 😂", "Still angry? Seriously? 😭", "I respect your decision! 🫡"];
+document.getElementById("noBtn").onclick = () => {
+  document.getElementById("noMsg").textContent = angryMsgs[Math.floor(Math.random() * angryMsgs.length)];
+  document.body.animate(
+    [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "translateX(0)" }],
+    { duration: 300 }
+  );
+};
+</script>
+</body>
+</html>
