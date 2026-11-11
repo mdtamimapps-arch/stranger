@@ -161,7 +161,7 @@ async function loadLetters() {
   try {
     const res = await fetch(
       `${CFG.SUPABASE_URL}/rest/v1/letters?select=id,body,created_at&order=created_at.desc`,
-      { headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: `Bearer ${CFG.SUPABASE_ANON_KEY}` } }
+      { headers: { apikey: CFG.SUPABASE_ANON_KEY } }
     );
     if (!res.ok) throw new Error();
     const rows = await res.json();
