@@ -287,11 +287,11 @@
   </section>
 
   <section class="card fade d3" aria-labelledby="lHead">
-    <h3 id="lHead">A Little Letter For You 💌</h3>
+    <h3 id="lHead">A Little Letter For You 💫 </h3>
     <div class="env-wrap">
       <button class="env" id="envBtn" aria-expanded="false" aria-controls="letters" aria-label="চিঠির খাম খোলো">
         <div class="body"></div>
-        <div class="paper">💌</div>
+        <div class="paper">💫</div>
         <div class="flap"></div>
         <div class="front"></div>
       </button>
@@ -304,15 +304,15 @@
     <h3 id="aHead">Still Angry With Me? 😒</h3>
     <p>Do you want to talk with me?</p>
     <div class="angry-btns">
-      <a class="btn" id="yesBtn" href="#" target="_blank" rel="noopener">YES 😲</a>
-      <button class="btn-ghost" id="noBtn">NO 😡</button>
+      <a class="btn" id="yesBtn" href="#" target="_blank" rel="noopener">YES 🙈 😲</a>
+      <button class="btn-ghost" id="noBtn">NO 😡 🦋 </button>
     </div>
     <p id="noMsg" aria-live="polite"></p>
   </section>
 
   <footer>
-    তোমার জন্য একটু আলো, একটু স্মৃতি ❤️<br />
-    এই পাতাটা শুধু তোমার জন্য।
+    তোমার জন্য একটু আলো, একটু স্মৃতি 🌷<br />
+    এই 🍀 পাতাটা শুধু তোমার জন্য।
   </footer>
 </main>
 
@@ -579,12 +579,12 @@ const yesBtn = document.getElementById("yesBtn");
 yesBtn.href = CFG.TELEGRAM_URL || "#";
 yesBtn.addEventListener("click", e => {
   const r = yesBtn.getBoundingClientRect();
-  burst(r.left + r.width / 2, r.top + r.height / 2, ["💜", "✨", "💙", "⭐", "❤️"], 18);
+  burst(r.left + r.width / 2, r.top + r.height / 2, ["🪷", "✨", "🪄", "⭐", "🍄"], 18);
   document.getElementById("noMsg").textContent = "Well, that's a nice surprise! ✨";
 });
 
 /* ---------- NO: shake, angry emoji rain, funny message ---------- */
-const angryMsgs = ["Okay, Boss! 😂", "Still angry? Seriously? 😭", "I respect your decision! 🫡"];
+const angryMsgs = ["Okay, Stranger! 🦉", "Still angry? Seriously? 🦫😭", "I respect your decision! 🫡"];
 const noBtn = document.getElementById("noBtn");
 noBtn.addEventListener("click", () => {
   document.getElementById("noMsg").textContent = angryMsgs[Math.floor(Math.random() * angryMsgs.length)];
