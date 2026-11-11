@@ -3,120 +3,429 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="September 14 — A Little Digital Memory" />
 <title>September 14 — A Little Digital Memory</title>
 <style>
-  :root { --navy:#080D1C; --deep:#17233F; --purple:#A78BFA; --cyan:#67E8F9; --white:#FFFFFF; }
+  :root {
+    --navy: #080D1C;
+    --deep: #17233F;
+    --purple: #A78BFA;
+    --violet: #7c5cf0;
+    --cyan: #67E8F9;
+    --white: #FFFFFF;
+  }
   * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
   body {
-    margin: 0; min-height: 100vh; color: var(--white);
-    font-family: system-ui, "Noto Sans Bengali", sans-serif;
-    background: radial-gradient(ellipse at top, var(--deep), var(--navy) 70%);
+    color: var(--white);
+    font-family: system-ui, "Noto Sans Bengali", "Hind Siliguri", sans-serif;
+    background: radial-gradient(ellipse at 50% 0%, #1d2b52 0%, var(--deep) 30%, var(--navy) 75%);
+    background-attachment: fixed;
+    overflow-x: hidden;
   }
-  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-  .star { position: absolute; width: 2px; height: 2px; background: var(--white); border-radius: 50%; opacity: .6; animation: twinkle 3s infinite ease-in-out; }
-  @keyframes twinkle { 50% { opacity: .1; } }
+
+  /* ---------- Background layers ---------- */
+  #bg {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-size: cover; background-position: center; opacity: 0;
+    transition: opacity 2s ease;
+  }
+  #bg.on { opacity: .35; }
+  .nebula {
+    position: fixed; inset: -20%; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(167,139,250,.18), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(103,232,249,.12), transparent 45%);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  @keyframes drift { to { transform: translate(3%, -2%) scale(1.05); } }
+
+  #sky { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+  /* ---------- Moon ---------- */
+  .moon-wrap {
+    position: fixed; top: 6%; right: 8%; z-index: 2; pointer-events: none;
+    filter: drop-shadow(0 0 28px rgba(167,139,250,.75)) drop-shadow(0 0 70px rgba(103,232,249,.25));
+    animation: float 7s ease-in-out infinite;
+  }
   .moon {
-    position: fixed; top: 8%; right: 8%; width: 90px; height: 90px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #fff, #d9ccff 60%, var(--purple));
-    box-shadow: 0 0 60px var(--purple); z-index: 0; animation: float 6s ease-in-out infinite;
+    width: 110px; height: 110px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fffdf2, #ebe3ff 55%, #b9a2ff 100%);
+    -webkit-mask: radial-gradient(circle at 72% 38%, transparent 58%, #000 59%);
+            mask: radial-gradient(circle at 72% 38%, transparent 58%, #000 59%);
+    position: relative;
   }
+  .moon::before, .moon::after {
+    content: ""; position: absolute; border-radius: 50%;
+    background: rgba(140, 120, 200, .25);
+  }
+  .moon::before { width: 18px; height: 18px; top: 30%; left: 22%; }
+  .moon::after  { width: 10px; height: 10px; top: 60%; left: 38%; }
   @keyframes float { 50% { transform: translateY(-12px); } }
-  main { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; padding: 48px 20px 80px; text-align: center; }
-  h1 { font-weight: 300; letter-spacing: 1px; margin: 0 0 4px; }
-  .sub { color: var(--cyan); margin-bottom: 32px; }
+
+  /* ---------- Floating particles ---------- */
+  #particles { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+  .mote {
+    position: absolute; bottom: -12px; border-radius: 50%; opacity: 0;
+    box-shadow: 0 0 8px currentColor;
+    animation: rise linear infinite;
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0) translateX(0); opacity: 0; }
+    10%  { opacity: .8; }
+    50%  { transform: translateY(-50vh) translateX(20px); }
+    100% { transform: translateY(-110vh) translateX(-10px); opacity: 0; }
+  }
+
+  /* ---------- Layout ---------- */
+  main {
+    position: relative; z-index: 3;
+    max-width: 680px; margin: 0 auto; padding: 56px 20px 90px; text-align: center;
+    display: none;
+  }
+  main.show { display: block; }
+
+  .fade { opacity: 0; transform: translateY(14px); animation: fadeUp 1.2s ease forwards; }
+  .d1 { animation-delay: .25s; } .d2 { animation-delay: .6s; }
+  .d3 { animation-delay: .95s; } .d4 { animation-delay: 1.3s; }
+  @keyframes fadeUp { to { opacity: 1; transform: none; } }
+
+  .date-line {
+    color: var(--cyan); letter-spacing: 2px; font-size: .85rem; text-transform: uppercase;
+  }
+  h1 {
+    font-weight: 300; letter-spacing: 2px; margin: 10px 0 6px; font-size: clamp(2rem, 6vw, 3rem);
+    text-shadow: 0 0 25px rgba(167,139,250,.6);
+  }
+  .tagline { color: var(--purple); margin: 0 0 22px; letter-spacing: 1px; }
+  .poem { opacity: .85; line-height: 1.9; margin: 0 0 28px; font-size: 1.05rem; }
+
+  /* Live clock */
+  .live {
+    display: inline-block; padding: 14px 26px; border-radius: 20px;
+    background: rgba(255,255,255,.04); border: 1px solid rgba(103,232,249,.25);
+    box-shadow: 0 0 30px rgba(103,232,249,.1);
+  }
+  #greet { font-size: 1rem; opacity: .9; }
+  #today { font-size: .85rem; opacity: .7; margin-top: 4px; }
+  #now {
+    font-size: 1.6rem; font-weight: 600; color: var(--cyan);
+    font-variant-numeric: tabular-nums; margin-top: 6px; letter-spacing: 1px;
+  }
+
+  /* Glass cards */
   .card {
-    background: rgba(255,255,255,.05); border: 1px solid rgba(167,139,250,.35);
-    border-radius: 18px; padding: 24px; margin: 24px 0; backdrop-filter: blur(10px);
-    box-shadow: 0 0 25px rgba(167,139,250,.15);
+    position: relative;
+    background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+    border: 1px solid rgba(167,139,250,.35);
+    border-radius: 22px; padding: 26px 22px; margin: 26px 0;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 0 35px rgba(167,139,250,.14), inset 0 0 25px rgba(255,255,255,.02);
   }
+  .card h3 { font-weight: 300; margin: 0 0 14px; font-size: 1.25rem; letter-spacing: .5px; }
+
+  /* Counter */
   .counter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-  .counter div span { display: block; font-size: 2rem; font-weight: 600; color: var(--cyan); }
-  .counter div small { opacity: .7; }
+  .unit {
+    padding: 14px 4px; border-radius: 14px;
+    background: rgba(8,13,28,.45); border: 1px solid rgba(103,232,249,.15);
+  }
+  .unit span {
+    display: block; font-size: clamp(1.5rem, 5vw, 2.1rem); font-weight: 600; color: var(--cyan);
+    font-variant-numeric: tabular-nums; text-shadow: 0 0 14px rgba(103,232,249,.5);
+  }
+  .unit small { opacity: .7; font-size: .8rem; }
+  .pulse { animation: pulse .4s ease; }
+  @keyframes pulse { 50% { transform: scale(1.12); } }
+
+  /* Buttons */
   button, .btn {
-    background: linear-gradient(135deg, var(--purple), #7c5cf0); color: #fff; border: 0;
-    padding: 12px 24px; border-radius: 999px; font-size: 1rem; cursor: pointer;
-    text-decoration: none; display: inline-block; transition: transform .2s;
+    font: inherit; font-size: 1rem; cursor: pointer; border: 0; color: #fff;
+    padding: 12px 26px; border-radius: 999px; text-decoration: none; display: inline-block;
+    background: linear-gradient(135deg, var(--purple), var(--violet));
+    box-shadow: 0 6px 20px rgba(124,92,240,.35);
+    transition: transform .2s, box-shadow .2s;
   }
-  button:hover, .btn:hover { transform: translateY(-2px); }
-  input {
-    width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--purple);
-    background: rgba(0,0,0,.3); color: #fff; font-size: 1rem; margin-bottom: 12px;
+  button:hover, .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(124,92,240,.5); }
+  button:focus-visible, .btn:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+  .btn-ghost { background: #334155; box-shadow: none; }
+
+  /* Envelope */
+  .env-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .env {
+    position: relative; width: 250px; height: 160px; padding: 0; margin: 8px auto;
+    background: transparent; border: 0; box-shadow: none; perspective: 900px; cursor: pointer;
   }
+  .env:hover { transform: none; box-shadow: none; }
+  .env .body {
+    position: absolute; inset: 0; border-radius: 12px; z-index: 2;
+    background: linear-gradient(145deg, #2d3670, #161d3d);
+    border: 1px solid rgba(167,139,250,.5);
+    box-shadow: 0 14px 36px rgba(0,0,0,.45);
+  }
+  .env .paper {
+    position: absolute; left: 14px; right: 14px; top: 16px; height: 120px; z-index: 1;
+    background: linear-gradient(#fffdf8, #f1ebff); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 30px;
+    transition: transform 1s ease .3s;
+  }
+  .env .flap {
+    position: absolute; top: 0; left: 0; right: 0; height: 90px; z-index: 3;
+    background: linear-gradient(#6d5cd6, #4b3bb0);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    border-radius: 12px 12px 0 0;
+    transform-origin: top center;
+    transition: transform .9s cubic-bezier(.6,.05,.3,1);
+  }
+  .env .front {
+    position: absolute; inset: 0; z-index: 4; border-radius: 12px;
+    background: linear-gradient(160deg, rgba(167,139,250,.35), rgba(103,232,249,.08));
+    clip-path: polygon(0 100%, 50% 42%, 100% 100%, 0 100%);
+  }
+  .env.open .flap { transform: rotateX(180deg); z-index: 0; }
+  .env.open .paper { transform: translateY(-60px); }
+  .env-label { opacity: .8; margin: 0; font-size: .95rem; }
+
+  .letters { display: none; text-align: left; margin-top: 10px; }
+  .letters.open { display: block; animation: fadeUp .8s ease forwards; opacity: 0; }
+  .letter {
+    padding: 16px 0; border-top: 1px solid rgba(167,139,250,.25);
+    white-space: pre-wrap; line-height: 1.85;
+  }
+  .letter:first-child { border-top: 0; }
+  .letter-date { color: var(--cyan); font-size: .82rem; margin-bottom: 6px; opacity: .85; }
+  .muted { opacity: .7; text-align: center; }
+  .err { color: #fca5a5; font-size: .85rem; }
+
+  /* Angry section */
+  .angry-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+  #noMsg { min-height: 1.8em; margin: 16px 0 0; font-size: 1.05rem; color: var(--cyan); }
+
+  footer { margin-top: 40px; opacity: .55; font-size: .85rem; line-height: 1.7; }
+
+  /* Gate */
   #gate {
     position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center;
-    background: var(--navy); padding: 20px;
+    background: radial-gradient(ellipse at 50% 20%, #1d2b52, var(--navy) 70%); padding: 20px;
   }
-  #gate .card { width: 100%; max-width: 360px; }
-  .error { color: #fca5a5; min-height: 1.2em; }
-  .letter { text-align: left; white-space: pre-wrap; line-height: 1.7; }
-  .letter-date { color: var(--cyan); font-size: .85rem; }
-  #hidden { display: none; }
+  #gate.hide { opacity: 0; transition: opacity .8s; pointer-events: none; }
+  #gate .card { width: 100%; max-width: 360px; text-align: center; }
+  #gate input {
+    width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid var(--purple);
+    background: rgba(0,0,0,.35); color: #fff; font-size: 1rem; margin: 6px 0 14px; text-align: center;
+  }
+  #gate button { width: 100%; }
+  #gate .lock { font-size: 2.2rem; margin-bottom: 4px; animation: float 4s ease-in-out infinite; }
+
+  input { font: inherit; }
+
+  /* Hearts / emoji bursts */
+  .burst {
+    position: fixed; z-index: 20; pointer-events: none; font-size: 22px; user-select: none;
+  }
+
+  @media (max-width: 480px) {
+    .counter { gap: 8px; }
+    .moon-wrap { top: 3%; right: 5%; }
+    .moon { width: 80px; height: 80px; }
+    .env { width: 220px; height: 145px; }
+    .env .paper { height: 105px; }
+    .env.open .paper { transform: translateY(-50px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .fade { opacity: 1; transform: none; }
+  }
 </style>
 </head>
 <body>
 
-<div class="stars" id="stars"></div>
-<div class="moon"></div>
+<div id="bg"></div>
+<div class="nebula"></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="moon-wrap" aria-hidden="true"><div class="moon"></div></div>
+<div id="particles" aria-hidden="true"></div>
 
 <!-- Password gate -->
 <div id="gate">
   <div class="card">
-    <h2 style="font-weight:300">🔒 Password দাও</h2>
-    <input type="password" id="pw" placeholder="Password" autocomplete="off" />
-    <button id="unlockBtn" style="width:100%">প্রবেশ করো</button>
-    <p class="error" id="gateError"></p>
+    <div class="lock">🔒</div>
+    <h3>Password দাও</h3>
+    <input type="password" id="pw" placeholder="Password" autocomplete="off" aria-label="Password" />
+    <button id="unlockBtn">প্রবেশ করো ✨</button>
+    <p class="err" id="gateError" role="alert"></p>
   </div>
 </div>
 
-<main id="site" class="hidden-until-unlock" style="display:none">
-  <h1>September 14</h1>
-  <div class="sub">7:28 PM 🌙 &nbsp;·&nbsp; A Little Digital Memory</div>
-  <p style="opacity:.85">Some stories begin unexpectedly.<br>Some strangers become familiar.<br>And some moments deserve to be remembered.</p>
+<main id="site">
 
-  <div class="card">
-    <div style="margin-bottom:12px;opacity:.8">আমাদের শুরু থেকে</div>
-    <div class="counter">
-      <div><span id="d">0</span><small>দিন</small></div>
-      <div><span id="h">0</span><small>ঘণ্টা</small></div>
-      <div><span id="m">0</span><small>মিনিট</small></div>
-      <div><span id="s">0</span><small>সেকেন্ড</small></div>
+  <header class="fade d1">
+    <div class="date-line">September 14 · 7:28 PM 🌙</div>
+    <h1>September 14</h1>
+    <p class="tagline">A Little Digital Memory</p>
+    <p class="poem">
+      Some stories begin unexpectedly.<br />
+      Some strangers become familiar.<br />
+      And some moments deserve to be remembered.
+    </p>
+    <div class="live">
+      <div id="greet"></div>
+      <div id="today"></div>
+      <div id="now"></div>
     </div>
-  </div>
+  </header>
 
-  <div class="card">
-    <h3 style="font-weight:300;margin-top:0">A Little Letter For You 💌</h3>
-    <div id="letters">লোড হচ্ছে...</div>
-  </div>
+  <section class="card fade d2" aria-labelledby="cHead">
+    <h3 id="cHead">আমাদের শুরু থেকে ✨</h3>
+    <div class="counter">
+      <div class="unit"><span id="d">0</span><small>দিন</small></div>
+      <div class="unit"><span id="h">00</span><small>ঘণ্টা</small></div>
+      <div class="unit"><span id="m">00</span><small>মিনিট</small></div>
+      <div class="unit"><span id="s">00</span><small>সেকেন্ড</small></div>
+    </div>
+  </section>
 
-  <div class="card">
-    <h3 style="font-weight:300;margin-top:0">Still Angry With Me? 😒</h3>
+  <section class="card fade d3" aria-labelledby="lHead">
+    <h3 id="lHead">A Little Letter For You 💌</h3>
+    <div class="env-wrap">
+      <button class="env" id="envBtn" aria-expanded="false" aria-controls="letters" aria-label="চিঠির খাম খোলো">
+        <div class="body"></div>
+        <div class="paper">💌</div>
+        <div class="flap"></div>
+        <div class="front"></div>
+      </button>
+      <p class="env-label" id="envLabel">খাম খুলতে চাপো</p>
+    </div>
+    <div id="letters" class="letters"></div>
+  </section>
+
+  <section class="card fade d4" aria-labelledby="aHead">
+    <h3 id="aHead">Still Angry With Me? 😒</h3>
     <p>Do you want to talk with me?</p>
-    <a class="btn" id="yesBtn" href="#" target="_blank" rel="noopener">YES 😲</a>
-    <button id="noBtn" style="background:#475569">NO 😡</button>
-    <p id="noMsg" style="min-height:1.5em"></p>
-  </div>
+    <div class="angry-btns">
+      <a class="btn" id="yesBtn" href="#" target="_blank" rel="noopener">YES 😲</a>
+      <button class="btn-ghost" id="noBtn">NO 😡</button>
+    </div>
+    <p id="noMsg" aria-live="polite"></p>
+  </section>
+
+  <footer>
+    তোমার জন্য একটু আলো, একটু স্মৃতি ❤️<br />
+    এই পাতাটা শুধু তোমার জন্য।
+  </footer>
 </main>
 
 <script src="config.js"></script>
 <script>
-const CFG = window.APP_CONFIG;
+const CFG = window.APP_CONFIG || {};
+const REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// Stars
-const starsEl = document.getElementById("stars");
-for (let i = 0; i < 120; i++) {
-  const s = document.createElement("div");
-  s.className = "star";
-  s.style.left = Math.random() * 100 + "%";
-  s.style.top = Math.random() * 100 + "%";
-  s.style.animationDelay = Math.random() * 3 + "s";
-  starsEl.appendChild(s);
+/* ---------- Optional night background image ---------- */
+if (CFG.BG_IMAGE) {
+  const bg = document.getElementById("bg");
+  bg.style.backgroundImage = `url("${CFG.BG_IMAGE}")`;
+  bg.classList.add("on");
 }
 
-// Password gate (server-side check)
-document.getElementById("unlockBtn").onclick = async () => {
+/* ---------- Starfield + shooting stars (canvas) ---------- */
+const cv = document.getElementById("sky");
+const ctx = cv.getContext("2d");
+let stars = [], shooters = [], dpr = 1, nextShoot = 0;
+
+function sizeCanvas() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = innerWidth * dpr;
+  cv.height = innerHeight * dpr;
+  cv.style.width = innerWidth + "px";
+  cv.style.height = innerHeight + "px";
+  const count = Math.min(280, Math.floor((innerWidth * innerHeight) / 4500));
+  stars = Array.from({ length: count }, () => ({
+    x: Math.random() * cv.width,
+    y: Math.random() * cv.height,
+    r: (Math.random() * 1.3 + 0.3) * dpr,
+    p: Math.random() * Math.PI * 2,
+    v: 0.01 + Math.random() * 0.025,
+  }));
+}
+
+function spawnShooter() {
+  shooters.push({
+    x: Math.random() * cv.width * 0.8,
+    y: Math.random() * cv.height * 0.4,
+    vx: 7 * dpr, vy: 3.5 * dpr, life: 0, max: 60,
+  });
+}
+
+function frame(t) {
+  ctx.clearRect(0, 0, cv.width, cv.height);
+
+  for (const s of stars) {
+    s.p += s.v;
+    ctx.globalAlpha = 0.35 + 0.65 * (Math.sin(s.p) * 0.5 + 0.5);
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  if (!REDUCED && t > nextShoot) {
+    spawnShooter();
+    nextShoot = t + 5000 + Math.random() * 7000;
+  }
+  shooters = shooters.filter(s => s.life < s.max);
+  for (const s of shooters) {
+    s.life++;
+    const tx = s.x - s.vx * 10, ty = s.y - s.vy * 10;
+    const g = ctx.createLinearGradient(s.x, s.y, tx, ty);
+    g.addColorStop(0, "rgba(103,232,249,.95)");
+    g.addColorStop(1, "rgba(103,232,249,0)");
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = g;
+    ctx.lineWidth = 2 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(s.x, s.y);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+    s.x += s.vx;
+    s.y += s.vy;
+  }
+  ctx.globalAlpha = 1;
+
+  if (!REDUCED) requestAnimationFrame(frame);
+}
+sizeCanvas();
+requestAnimationFrame(frame);
+window.addEventListener("resize", sizeCanvas);
+
+/* ---------- Floating particles ---------- */
+const pWrap = document.getElementById("particles");
+for (let i = 0; i < 24; i++) {
+  const p = document.createElement("span");
+  p.className = "mote";
+  const size = 2 + Math.random() * 3;
+  p.style.left = Math.random() * 100 + "%";
+  p.style.width = p.style.height = size + "px";
+  p.style.color = Math.random() > 0.5 ? "#A78BFA" : "#67E8F9";
+  p.style.background = p.style.color;
+  p.style.animationDuration = 10 + Math.random() * 14 + "s";
+  p.style.animationDelay = -Math.random() * 20 + "s";
+  pWrap.appendChild(p);
+}
+
+/* ---------- Password gate (server-side check) ---------- */
+const site = document.getElementById("site");
+const gate = document.getElementById("gate");
+let lettersLoaded = false;
+
+async function unlock() {
   const pw = document.getElementById("pw").value;
   const err = document.getElementById("gateError");
+  const btn = document.getElementById("unlockBtn");
   err.textContent = "";
+  if (!pw) { err.textContent = "Password লেখো।"; return; }
+
+  btn.disabled = true;
   try {
     const res = await fetch("/.netlify/functions/unlock", {
       method: "POST",
@@ -125,85 +434,170 @@ document.getElementById("unlockBtn").onclick = async () => {
     });
     const data = await res.json();
     if (data.ok) {
-      document.getElementById("gate").style.display = "none";
-      document.getElementById("site").style.display = "block";
-      loadLetters();
+      gate.classList.add("hide");
+      setTimeout(() => { gate.style.display = "none"; }, 800);
+      site.classList.add("show");
+      if (!lettersLoaded) { lettersLoaded = true; loadLetters(); }
     } else {
       err.textContent = "ভুল password, আবার চেষ্টা করো।";
     }
   } catch {
     err.textContent = "সংযোগে সমস্যা হয়েছে।";
+  } finally {
+    btn.disabled = false;
   }
-};
+}
+document.getElementById("unlockBtn").onclick = unlock;
 document.getElementById("pw").addEventListener("keydown", e => {
-  if (e.key === "Enter") document.getElementById("unlockBtn").click();
+  if (e.key === "Enter") unlock();
 });
 
-// Live counter from real timestamp
+/* ---------- Live Dhaka clock + greeting ---------- */
+const fTime = new Intl.DateTimeFormat("bn-BD", {
+  timeZone: "Asia/Dhaka", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
+});
+const fDate = new Intl.DateTimeFormat("bn-BD", {
+  timeZone: "Asia/Dhaka", weekday: "long", day: "numeric", month: "long", year: "numeric",
+});
+const fHour = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Asia/Dhaka", hour: "numeric", hourCycle: "h23",
+});
+
+function greeting(hr) {
+  if (hr < 5)  return "শুভ রাত্রি 🌌";
+  if (hr < 12) return "শুভ সকাল ☀️";
+  if (hr < 17) return "শুভ দুপুর 🌤️";
+  if (hr < 19) return "শুভ সন্ধ্যা 🌇";
+  return "শুভ রাত্রি 🌙";
+}
+
+function updateClock() {
+  const now = new Date();
+  const hr = Number(fHour.formatToParts(now).find(p => p.type === "hour").value);
+  document.getElementById("greet").textContent = greeting(hr);
+  document.getElementById("today").textContent = fDate.format(now);
+  document.getElementById("now").textContent = fTime.format(now);
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ---------- Live counter from real timestamp ---------- */
 const START = new Date(CFG.START_ISO).getTime();
+const last = {};
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (last[id] === val) return;
+  last[id] = val;
+  el.textContent = val;
+  if (!REDUCED) {
+    el.classList.remove("pulse");
+    void el.offsetWidth;
+    el.classList.add("pulse");
+  }
+}
+const pad = n => String(n).padStart(2, "0");
+
 function tick() {
   const diff = Math.max(0, Date.now() - START);
-  const d = Math.floor(diff / 86400000);
-  const h = Math.floor(diff / 3600000) % 24;
-  const m = Math.floor(diff / 60000) % 60;
-  const s = Math.floor(diff / 1000) % 60;
-  document.getElementById("d").textContent = d;
-  document.getElementById("h").textContent = h;
-  document.getElementById("m").textContent = m;
-  document.getElementById("s").textContent = s;
+  setVal("d", Math.floor(diff / 86400000));
+  setVal("h", pad(Math.floor(diff / 3600000) % 24));
+  setVal("m", pad(Math.floor(diff / 60000) % 60));
+  setVal("s", pad(Math.floor(diff / 1000) % 60));
 }
 tick();
 setInterval(tick, 1000);
 
-// Letters (Google Sheets API integration)
+/* ---------- Envelope ---------- */
+const envBtn = document.getElementById("envBtn");
+const lettersBox = document.getElementById("letters");
+envBtn.addEventListener("click", () => {
+  const open = !envBtn.classList.contains("open");
+  envBtn.classList.toggle("open", open);
+  envBtn.setAttribute("aria-expanded", String(open));
+  document.getElementById("envLabel").textContent = open ? "চিঠি পড়ো 💌" : "খাম খুলতে চাপো";
+  lettersBox.classList.toggle("open", open);
+  if (open) lettersBox.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "nearest" });
+});
+
+/* ---------- Letters from Google Sheet ---------- */
 async function loadLetters() {
-  const box = document.getElementById("letters");
+  lettersBox.innerHTML = `<p class="muted">লোড হচ্ছে...</p>`;
   try {
     const res = await fetch(`https://opensheet.elk.sh/${CFG.SHEET_ID}/Sheet1`);
     if (!res.ok) throw new Error("Network error");
     const rows = await res.json();
-    
-    if (!rows.length || !rows[0].body) { 
-      box.textContent = "এখনো কোনো চিঠি নেই।"; 
-      return; 
+    const valid = rows.filter(r => r.body && String(r.body).trim());
+
+    lettersBox.innerHTML = "";
+    if (!valid.length) {
+      lettersBox.innerHTML = `<p class="muted">এখনো কোনো চিঠি নেই। 💫</p>`;
+      return;
     }
-    
-    box.innerHTML = "";
-    rows.forEach(r => {
-      if(!r.body) return; // ফাঁকা লাইন স্কিপ করবে
-      
+    valid.forEach(r => {
       const div = document.createElement("div");
       div.className = "letter";
-      div.style.borderTop = "1px solid rgba(167,139,250,.25)";
-      div.style.paddingTop = "12px";
-      div.style.marginTop = "12px";
-      
       const date = document.createElement("div");
       date.className = "letter-date";
-      const d = r.created_at ? new Date(r.created_at).toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" }) : "কোনো তারিখ নেই";
-      date.textContent = d;
-      
+      date.textContent = r.created_at
+        ? new Date(r.created_at).toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" })
+        : "";
       const body = document.createElement("div");
       body.textContent = r.body;
-      
       div.append(date, body);
-      box.appendChild(div);
+      lettersBox.appendChild(div);
     });
-  } catch (error) {
-    box.innerHTML = `চিঠি লোড করা যায়নি।<br><small style="color:#fca5a5; font-size: 12px;">${error.message}</small>`;
+    document.getElementById("envLabel").textContent =
+      envBtn.classList.contains("open") ? "চিঠি পড়ো 💌" : `${valid.length}টি চিঠি আছে, খাম খুলতে চাপো`;
+  } catch {
+    lettersBox.innerHTML = `<p class="err">চিঠি লোড করা যায়নি। একটু পরে আবার চেষ্টা করো।</p>`;
   }
 }
 
-// Telegram + angry mood
-document.getElementById("yesBtn").href = CFG.TELEGRAM_URL;
+/* ---------- Floating emoji burst ---------- */
+function burst(x, y, emojis, count = 14) {
+  if (REDUCED) return;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement("span");
+    el.className = "burst";
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    document.body.appendChild(el);
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 60 + Math.random() * 110;
+    const dx = Math.cos(angle) * dist, dy = Math.sin(angle) * dist - 40;
+    const anim = el.animate([
+      { transform: "translate(-50%,-50%) scale(.4)", opacity: 1 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1.2)`, opacity: 0 },
+    ], { duration: 1300 + Math.random() * 600, easing: "cubic-bezier(.2,.7,.3,1)", fill: "forwards" });
+    anim.onfinish = () => el.remove();
+  }
+}
+
+/* ---------- YES: hearts, then Telegram ---------- */
+const yesBtn = document.getElementById("yesBtn");
+yesBtn.href = CFG.TELEGRAM_URL || "#";
+yesBtn.addEventListener("click", e => {
+  const r = yesBtn.getBoundingClientRect();
+  burst(r.left + r.width / 2, r.top + r.height / 2, ["💜", "✨", "💙", "⭐", "❤️"], 18);
+  document.getElementById("noMsg").textContent = "Well, that's a nice surprise! ✨";
+});
+
+/* ---------- NO: shake, angry emoji rain, funny message ---------- */
 const angryMsgs = ["Okay, Boss! 😂", "Still angry? Seriously? 😭", "I respect your decision! 🫡"];
-document.getElementById("noBtn").onclick = () => {
+const noBtn = document.getElementById("noBtn");
+noBtn.addEventListener("click", () => {
   document.getElementById("noMsg").textContent = angryMsgs[Math.floor(Math.random() * angryMsgs.length)];
-  document.body.animate(
-    [{ transform: "translateX(0)" }, { transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "translateX(0)" }],
-    { duration: 300 }
-  );
-};
+  if (!REDUCED) {
+    document.body.animate([
+      { transform: "translateX(0)" }, { transform: "translateX(-9px)" },
+      { transform: "translateX(9px)" }, { transform: "translateX(-6px)" },
+      { transform: "translateX(0)" },
+    ], { duration: 380 });
+    const r = noBtn.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, ["😡", "😤", "💢", "🔥"], 12);
+  }
+});
 </script>
 </body>
 </html>
