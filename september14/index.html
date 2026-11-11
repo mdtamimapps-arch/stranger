@@ -163,7 +163,10 @@ async function loadLetters() {
       `${CFG.SUPABASE_URL}/rest/v1/letters?select=id,body,created_at&order=created_at.desc`,
       { headers: { apikey: CFG.SUPABASE_ANON_KEY } }
     );
-    if (!res.ok) throw new Error();
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Status ${res.status}: ${errorText}`);
+    }
     const rows = await res.json();
     if (!rows.length) { box.textContent = "এখনো কোনো চিঠি নেই।"; return; }
     box.innerHTML = "";
@@ -181,8 +184,9 @@ async function loadLetters() {
       div.append(date, body);
       box.appendChild(div);
     });
-  } catch {
-    box.textContent = "চিঠি লোড করা যায়নি।";
+  } catch (error) {
+    // এবার এরর টা স্ক্রিনেই দেখাবে
+    box.innerHTML = `চিঠি লোড করা যায়নি।<br><small style="color:#fca5a5; font-size: 12px;">${error.message}</small>`;
   }
 }
 
